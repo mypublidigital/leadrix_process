@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Assessment Leadrix — Visão Geral "As Is"</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --primary: #4F46E5;
@@ -17,443 +18,178 @@
     --text-muted: #64748B;
     --success: #10B981;
     --danger: #EF4444;
-    --radius: 12px;
     --shadow: 0 4px 24px rgba(79,70,229,0.08);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px 48px;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 24px 16px 48px;
   }
-
   .app-header {
-    width: 100%;
-    max-width: 720px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    width: 100%; max-width: 720px;
+    display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 32px;
   }
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-  .logo img {
-    height: 48px;
-    width: auto;
-    border-radius: 8px;
-    display: block;
-  }
+  .logo { display: flex; align-items: center; }
+  .logo img { height: 48px; width: auto; border-radius: 8px; display: block; }
   .admin-link {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    text-decoration: underline;
-    background: none; border: none;
-    font-family: inherit;
+    font-size: 0.8rem; color: var(--text-muted); cursor: pointer;
+    text-decoration: underline; background: none; border: none; font-family: inherit;
   }
   .admin-link:hover { color: var(--primary); }
-
   .card {
-    background: var(--surface);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 40px 48px;
-    width: 100%;
-    max-width: 720px;
+    background: var(--surface); border-radius: 20px;
+    box-shadow: var(--shadow); padding: 40px 48px;
+    width: 100%; max-width: 720px;
   }
-  @media (max-width: 600px) {
-    .card { padding: 28px 20px; }
-  }
-
-  .progress-wrap {
-    margin-bottom: 32px;
-  }
+  @media (max-width: 600px) { .card { padding: 28px 20px; } }
+  .progress-wrap { margin-bottom: 32px; }
   .progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;
   }
-  .progress-bar-bg {
-    height: 6px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
+  .progress-bar-bg { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
   .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    border-radius: 99px;
-    transition: width 0.4s ease;
+    height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 99px; transition: width 0.4s ease;
   }
-  .steps-dots {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-  .step-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    transition: background 0.3s;
-  }
+  .steps-dots { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
   .step-dot.done { background: var(--primary); }
   .step-dot.current { background: var(--accent); transform: scale(1.3); }
-
   .section-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #EEF2FF, #E0F2FE);
-    color: var(--primary);
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 99px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    display: inline-block; background: linear-gradient(135deg,#EEF2FF,#E0F2FE);
+    color: var(--primary); font-size: 0.72rem; font-weight: 600;
+    padding: 4px 12px; border-radius: 99px;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
   }
-  .section-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.3;
-    margin-bottom: 6px;
-  }
-  .section-subtitle {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 28px;
-    line-height: 1.5;
-  }
-
-  .question-block {
-    margin-bottom: 22px;
-  }
-  .question-label {
-    display: flex;
-    gap: 10px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 8px;
-    line-height: 1.4;
-  }
+  .section-title { font-size: 1.4rem; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+  .section-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.5; }
+  .question-block { margin-bottom: 22px; }
+  .question-label { display: flex; gap: 10px; font-size: 0.95rem; font-weight: 500; margin-bottom: 8px; line-height: 1.4; }
   .q-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px; height: 24px;
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    font-size: 0.72rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 1px;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 24px; height: 24px; background: var(--primary); color: white;
+    border-radius: 50%; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
   }
   textarea {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-family: inherit;
-    font-size: 0.9rem;
-    color: var(--text);
-    resize: vertical;
-    min-height: 80px;
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-family: inherit; font-size: 0.9rem; color: var(--text);
+    resize: vertical; min-height: 80px; background: #FAFBFF; line-height: 1.5;
     transition: border-color 0.2s, box-shadow 0.2s;
-    background: #FAFBFF;
-    line-height: 1.5;
   }
-  textarea:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    background: white;
-  }
+  textarea:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); background: white; }
   textarea::placeholder { color: #B0BAC9; }
-
-  .nav-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 32px;
-    gap: 12px;
-  }
+  .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 12px; }
   .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    font-family: inherit;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s; font-family: inherit;
   }
-  .btn-secondary {
-    background: var(--bg);
-    color: var(--text-muted);
-    border: 1.5px solid var(--border);
-  }
+  .btn-secondary { background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border); }
   .btn-secondary:hover { background: #EEF2FF; color: var(--primary); border-color: var(--primary-light); }
-  .btn-primary {
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 4px 12px rgba(79,70,229,0.25);
-  }
-  .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 6px 16px rgba(79,70,229,0.35); }
-  .btn-success {
-    background: var(--success);
-    color: white;
-    box-shadow: 0 4px 12px rgba(16,185,129,0.25);
-  }
+  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
   .btn-success:hover { background: #059669; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  #screen-intro .hero-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    display: block;
-  }
-  #screen-intro h1 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-    line-height: 1.2;
-    color: var(--primary-dark);
-  }
-  #screen-intro p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 16px;
-  }
-  .meta-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin: 24px 0;
-  }
+  #screen-intro .hero-icon { font-size: 3rem; margin-bottom: 16px; display: block; }
+  #screen-intro h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; line-height: 1.2; color: var(--primary-dark); }
+  #screen-intro p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; }
+  .meta-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0; }
   @media (max-width: 500px) { .meta-fields { grid-template-columns: 1fr; } }
-  .field-group label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
+  .field-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
   .field-group input {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-family: inherit;
-    font-size: 0.9rem;
-    color: var(--text);
-    background: #FAFBFF;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-family: inherit; font-size: 0.9rem; color: var(--text);
+    background: #FAFBFF; transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .field-group input:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    background: white;
-  }
-
+  .field-group input:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); background: white; }
   #screen-success { text-align: center; }
   #screen-success .success-icon { font-size: 4rem; display: block; margin-bottom: 16px; }
   #screen-success h2 { font-size: 1.5rem; font-weight: 800; color: var(--success); margin-bottom: 10px; }
   #screen-success p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
-
   .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);
+    z-index: 100; align-items: center; justify-content: center; padding: 16px;
   }
   .overlay.active { display: flex; }
   .modal {
-    background: white;
-    border-radius: 20px;
-    padding: 36px 40px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.2);
-    position: relative;
+    background: white; border-radius: 20px; padding: 36px 40px;
+    width: 100%; max-width: 480px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); position: relative;
   }
   @media (max-width: 520px) { .modal { padding: 28px 20px; } }
   .modal-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: var(--bg);
-    border: none;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    font-size: 1rem;
-    cursor: pointer;
-    color: var(--text-muted);
+    position: absolute; top: 16px; right: 16px; background: var(--bg);
+    border: none; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 1rem; cursor: pointer; color: var(--text-muted);
     display: flex; align-items: center; justify-content: center;
   }
   .modal-close:hover { background: var(--border); color: var(--text); }
   .modal h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
   .modal p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
   .modal input[type="password"] {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    margin-bottom: 14px;
-    background: #FAFBFF;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-size: 0.95rem; font-family: inherit; margin-bottom: 14px;
+    background: #FAFBFF; transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .modal input[type="password"]:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    background: white;
-  }
+  .modal input[type="password"]:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); background: white; }
   .error-msg { color: var(--danger); font-size: 0.82rem; margin-top: -8px; margin-bottom: 12px; display: none; }
   .error-msg.visible { display: block; }
-
-  #admin-panel {
-    display: none;
-    width: 100%;
-    max-width: 900px;
-  }
+  #admin-panel { display: none; width: 100%; max-width: 900px; }
   #admin-panel.active { display: block; }
-  .admin-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
   .admin-header h2 { font-size: 1.3rem; font-weight: 700; color: var(--primary-dark); }
-  .admin-stats {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
-  .stat-card {
-    background: white;
-    border-radius: 12px;
-    padding: 16px 20px;
-    border: 1.5px solid var(--border);
-    flex: 1;
-    min-width: 140px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
+  .admin-stats { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat-card { background: white; border-radius: 12px; padding: 16px 20px; border: 1.5px solid var(--border); flex: 1; min-width: 140px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .stat-card .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
   .stat-card .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-  .response-card {
-    background: white;
-    border-radius: 14px;
-    border: 1.5px solid var(--border);
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    overflow: hidden;
-  }
-  .response-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.15s;
-  }
+  .response-card { background: white; border-radius: 14px; border: 1.5px solid var(--border); margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden; }
+  .response-card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; user-select: none; transition: background 0.15s; }
   .response-card-header:hover { background: #FAFBFF; }
-  .resp-meta h4 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+  .resp-meta h4 { font-size: 0.95rem; font-weight: 700; }
   .resp-meta span { font-size: 0.78rem; color: var(--text-muted); }
   .chevron { font-size: 1rem; color: var(--text-muted); transition: transform 0.25s; }
   .chevron.open { transform: rotate(180deg); }
   .response-card-body { display: none; padding: 0 20px 20px; }
   .response-card-body.open { display: block; }
   .resp-section { margin-bottom: 18px; }
-  .resp-section-title {
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--primary);
-    border-bottom: 1.5px solid #EEF2FF;
-    padding-bottom: 6px;
-    margin-bottom: 10px;
-  }
+  .resp-section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--primary); border-bottom: 1.5px solid #EEF2FF; padding-bottom: 6px; margin-bottom: 10px; }
   .resp-q { margin-bottom: 10px; }
   .resp-q-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; }
-  .resp-q-answer {
-    font-size: 0.88rem;
-    color: var(--text);
-    line-height: 1.5;
-    background: #F8FAFC;
-    border-radius: 8px;
-    padding: 8px 12px;
-    border-left: 3px solid var(--border);
-  }
+  .resp-q-answer { font-size: 0.88rem; line-height: 1.5; background: #F8FAFC; border-radius: 8px; padding: 8px 12px; border-left: 3px solid var(--border); }
   .resp-q-answer.empty { color: #B0BAC9; font-style: italic; }
-  .no-responses {
-    text-align: center;
-    padding: 48px;
-    color: var(--text-muted);
-  }
+  .no-responses { text-align: center; padding: 48px; color: var(--text-muted); }
   .no-responses .no-resp-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
-  .btn-danger {
-    background: #FFF5F5;
-    color: var(--danger);
-    border: 1.5px solid #FED7D7;
-    font-size: 0.8rem;
-    padding: 8px 16px;
-  }
+  .loading-msg { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.9rem; }
+  .btn-danger { background: #FFF5F5; color: var(--danger); border: 1.5px solid #FED7D7; font-size: 0.8rem; padding: 8px 16px; }
   .btn-danger:hover { background: var(--danger); color: white; }
-  .btn-export {
-    background: var(--success);
-    color: white;
-    font-size: 0.8rem;
-    padding: 8px 16px;
-    box-shadow: none;
-  }
+  .btn-export { background: var(--success); color: white; font-size: 0.8rem; padding: 8px 16px; box-shadow: none; }
   .btn-export:hover { background: #059669; }
-  .action-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-
+  .action-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
   .screen { display: none; }
   .screen.active { display: block; }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 24px 0;
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  /* Saving overlay */
+  .saving-overlay {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.5);
+    backdrop-filter: blur(4px); z-index: 200;
+    display: flex; align-items: center; justify-content: center;
   }
+  .saving-box {
+    background: white; border-radius: 16px; padding: 32px 40px;
+    text-align: center; box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+  }
+  .saving-box .spin {
+    display: inline-block; width: 36px; height: 36px;
+    border: 3px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .saving-box p { font-size: 0.9rem; color: var(--text-muted); margin: 0; }
 </style>
 </head>
 <body>
@@ -472,26 +208,12 @@
     <p>Leva cerca de <strong>20–30 minutos</strong>. Você pode ser direto e objetivo; não há resposta certa ou errada.</p>
     <div class="divider"></div>
     <div class="meta-fields">
-      <div class="field-group">
-        <label>Seu nome</label>
-        <input type="text" id="meta-name" placeholder="Ex.: João Silva" />
-      </div>
-      <div class="field-group">
-        <label>Empresa</label>
-        <input type="text" id="meta-company" placeholder="Ex.: Empresa X" />
-      </div>
-      <div class="field-group">
-        <label>Cargo / Papel</label>
-        <input type="text" id="meta-role" placeholder="Ex.: CEO, COO, Gerente..." />
-      </div>
-      <div class="field-group">
-        <label>Data de preenchimento</label>
-        <input type="date" id="meta-date" />
-      </div>
+      <div class="field-group"><label>Seu nome</label><input type="text" id="meta-name" placeholder="Ex.: João Silva" /></div>
+      <div class="field-group"><label>Empresa</label><input type="text" id="meta-company" placeholder="Ex.: Empresa X" /></div>
+      <div class="field-group"><label>Cargo / Papel</label><input type="text" id="meta-role" placeholder="Ex.: CEO, COO, Gerente..." /></div>
+      <div class="field-group"><label>Data de preenchimento</label><input type="date" id="meta-date" /></div>
     </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="startForm()">
-      Começar assessment →
-    </button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="startForm()">Começar assessment →</button>
   </div>
 
   <div class="screen" id="screen-form">
@@ -500,9 +222,7 @@
         <span id="progress-section-label">Seção 1 de 10</span>
         <span id="progress-pct">0%</span>
       </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
       <div class="steps-dots" id="steps-dots"></div>
     </div>
     <div id="step-content"></div>
@@ -517,9 +237,7 @@
     <h2>Respostas enviadas com sucesso!</h2>
     <p>Obrigado pelo tempo dedicado ao preenchimento. Suas respostas foram salvas e serão analisadas pela equipe Leadrix para a construção do diagnóstico.</p>
     <br>
-    <button class="btn btn-secondary" style="margin:0 auto;display:flex;" onclick="restartForm()">
-      Preencher novamente
-    </button>
+    <button class="btn btn-secondary" style="margin:0 auto;display:flex;" onclick="restartForm()">Preencher novamente</button>
   </div>
 
 </div>
@@ -549,331 +267,213 @@
 </div>
 
 <script>
+// ── Supabase ──────────────────────────────────
+const { createClient } = supabase;
+const db = createClient('https://drivyvjmolrwbdccqmtp.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyaXZ5dmptb2xyd2JkY2NxbXRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2ODkxMjgsImV4cCI6MjA3MjI2NTEyOH0.B7PRyuqelHmBI5bAs8ISFA1WZcM7mCsRucZWLjdAX8M');
+
+// ── Config ────────────────────────────────────
+const ADMIN_PASSWORD = 'leadrix@admin';
+let adminResponses = [];
+
+// ── Sections ──────────────────────────────────
 const sections = [
-  {
-    id: "s1",
-    badge: "Seção 1",
-    title: "Posicionamento e Modelo Operacional",
-    subtitle: "Entenda como a empresa se posiciona e entrega valor hoje.",
-    questions: [
-      "Quais são os principais serviços oferecidos pela empresa hoje?",
-      "Como esses serviços são comercializados e entregues na prática?",
-      "O atendimento é pontual, recorrente, por projeto, por mensalidade ou modelo híbrido?",
-      "Quais áreas ou equipes participam diretamente da jornada do cliente, da entrada até a entrega?"
-    ]
-  },
-  {
-    id: "s2",
-    badge: "Seção 2",
-    title: "Prospecção e Geração de Demanda",
-    subtitle: "Mapeie como leads e oportunidades chegam à empresa.",
-    questions: [
-      "Quais são hoje os principais canais de entrada de leads e oportunidades?",
-      "Como os leads são captados, registrados e distribuídos para o time comercial?",
-      "Existe algum processo de qualificação de leads? Se sim, como ele funciona?",
-      "Quais sistemas ou ferramentas são usados na prospecção, marketing e captação de oportunidades?"
-    ]
-  },
-  {
-    id: "s3",
-    badge: "Seção 3",
-    title: "Comercial e Fechamento",
-    subtitle: "Descreva o processo de vendas do primeiro contato ao contrato assinado.",
-    questions: [
-      "Como funciona hoje o processo comercial, desde o primeiro contato até o fechamento?",
-      "Quais etapas exigem maior esforço manual, retrabalho ou dependência de pessoas-chave?",
-      "Propostas comerciais, contratos e aprovações são feitos de forma manual ou automatizada?",
-      "Quais sistemas são usados no processo comercial e onde ficam registradas as informações do cliente?"
-    ]
-  },
-  {
-    id: "s4",
-    badge: "Seção 4",
-    title: "Onboarding e Passagem de Bastão",
-    subtitle: "O que acontece logo após o cliente fechar negócio.",
-    questions: [
-      "O que acontece depois que o cliente fecha? Como é feito o onboarding?",
-      "Existe uma passagem de bastão formal entre comercial e operação? Como ela acontece?",
-      "Quais informações normalmente faltam, se perdem ou chegam incompletas nessa transição?",
-      "Quais sistemas, planilhas, documentos ou canais são usados no onboarding?"
-    ]
-  },
-  {
-    id: "s5",
-    badge: "Seção 5",
-    title: "Operação e Entrega do Serviço",
-    subtitle: "Como o serviço é organizado e executado no dia a dia.",
-    questions: [
-      "Como a entrega do serviço é organizada no dia a dia?",
-      "Quais são os principais macroprocessos operacionais da empresa?",
-      "Quais atividades operacionais são mais repetitivas, manuais ou suscetíveis a erro?",
-      "Há uso de fluxos, playbooks, checklists, SLAs ou alguma padronização da operação?",
-      "Quais sistemas sustentam a operação hoje?"
-    ]
-  },
-  {
-    id: "s6",
-    badge: "Seção 6",
-    title: "Relacionamento, Suporte e Recorrência",
-    subtitle: "Como a empresa acompanha e retém seus clientes ativos.",
-    questions: [
-      "Como a empresa acompanha clientes ativos, demandas em andamento e satisfação?",
-      "Existe processo estruturado de suporte, pós-venda, renovação, recorrência ou upsell?",
-      "Onde ficam registradas interações, solicitações, pendências e histórico do cliente?",
-      "Quais pontos da experiência do cliente hoje geram mais ruído, demora ou retrabalho?"
-    ]
-  },
-  {
-    id: "s7",
-    badge: "Seção 7",
-    title: "Financeiro e Administrativo",
-    subtitle: "Controles financeiros ligados à jornada do cliente.",
-    questions: [
-      "Como funcionam hoje faturamento, cobrança, repasses, reembolsos ou controles administrativos relacionados ao cliente?",
-      "Quais etapas financeiras dependem de controles paralelos, planilhas ou validações manuais?",
-      "Há integração entre comercial, operação e financeiro? Se sim, como ela acontece na prática?"
-    ]
-  },
-  {
-    id: "s8",
-    badge: "Seção 8",
-    title: "Sistemas, Dados e Integrações",
-    subtitle: "Entenda o ecossistema de ferramentas e a confiabilidade das informações.",
-    questions: [
-      "Quais são os principais sistemas utilizados hoje pela empresa em marketing, comercial, operação, atendimento e financeiro?",
-      "Esses sistemas se conversam entre si ou a equipe precisa transferir informações manualmente?",
-      "Quais dados são considerados confiáveis para gestão e quais hoje são frágeis, descentralizados ou difíceis de acessar?",
-      "Existe alguma base de conhecimento, repositório de documentos, FAQ, histórico de atendimento ou documentação interna?"
-    ]
-  },
-  {
-    id: "s9",
-    badge: "Seção 9",
-    title: "Gargalos e Prontidão para Automação",
-    subtitle: "Identifique onde estão os maiores pontos de atrito e oportunidade.",
-    questions: [
-      "Quais são hoje os 3 maiores gargalos operacionais da empresa ao longo da jornada do cliente?",
-      "Em quais etapas faria mais sentido automatizar primeiro, considerando ganho de tempo, redução de erro ou escala?",
-      "Existe alguma restrição relevante para implantação de automações, como sistema legado, baixa padronização, dependência de pessoas específicas ou limitações de acesso a dados?"
-    ]
-  },
-  {
-    id: "s10",
-    badge: "Fechamento",
-    title: "Diagnóstico Comercial",
-    subtitle: "Perguntas finais para orientar o próximo passo da proposta.",
-    questions: [
-      "Se fosse preciso priorizar, quais áreas da jornada do cliente mais precisam de eficiência hoje?",
-      "Há algum prazo, meta de crescimento ou desafio estratégico que aumente a urgência desse projeto?",
-      "Quem são os responsáveis internos que precisariam participar de um diagnóstico mais aprofundado, caso a proposta avance?"
-    ]
-  }
+  { id:'s1', badge:'Seção 1', title:'Posicionamento e Modelo Operacional', subtitle:'Entenda como a empresa se posiciona e entrega valor hoje.', questions:['Quais são os principais serviços oferecidos pela empresa hoje?','Como esses serviços são comercializados e entregues na prática?','O atendimento é pontual, recorrente, por projeto, por mensalidade ou modelo híbrido?','Quais áreas ou equipes participam diretamente da jornada do cliente, da entrada até a entrega?'] },
+  { id:'s2', badge:'Seção 2', title:'Prospecção e Geração de Demanda', subtitle:'Mapeie como leads e oportunidades chegam à empresa.', questions:['Quais são hoje os principais canais de entrada de leads e oportunidades?','Como os leads são captados, registrados e distribuídos para o time comercial?','Existe algum processo de qualificação de leads? Se sim, como ele funciona?','Quais sistemas ou ferramentas são usados na prospecção, marketing e captação de oportunidades?'] },
+  { id:'s3', badge:'Seção 3', title:'Comercial e Fechamento', subtitle:'Descreva o processo de vendas do primeiro contato ao contrato assinado.', questions:['Como funciona hoje o processo comercial, desde o primeiro contato até o fechamento?','Quais etapas exigem maior esforço manual, retrabalho ou dependência de pessoas-chave?','Propostas comerciais, contratos e aprovações são feitos de forma manual ou automatizada?','Quais sistemas são usados no processo comercial e onde ficam registradas as informações do cliente?'] },
+  { id:'s4', badge:'Seção 4', title:'Onboarding e Passagem de Bastão', subtitle:'O que acontece logo após o cliente fechar negócio.', questions:['O que acontece depois que o cliente fecha? Como é feito o onboarding?','Existe uma passagem de bastão formal entre comercial e operação? Como ela acontece?','Quais informações normalmente faltam, se perdem ou chegam incompletas nessa transição?','Quais sistemas, planilhas, documentos ou canais são usados no onboarding?'] },
+  { id:'s5', badge:'Seção 5', title:'Operação e Entrega do Serviço', subtitle:'Como o serviço é organizado e executado no dia a dia.', questions:['Como a entrega do serviço é organizada no dia a dia?','Quais são os principais macroprocessos operacionais da empresa?','Quais atividades operacionais são mais repetitivas, manuais ou suscetíveis a erro?','Há uso de fluxos, playbooks, checklists, SLAs ou alguma padronização da operação?','Quais sistemas sustentam a operação hoje?'] },
+  { id:'s6', badge:'Seção 6', title:'Relacionamento, Suporte e Recorrência', subtitle:'Como a empresa acompanha e retém seus clientes ativos.', questions:['Como a empresa acompanha clientes ativos, demandas em andamento e satisfação?','Existe processo estruturado de suporte, pós-venda, renovação, recorrência ou upsell?','Onde ficam registradas interações, solicitações, pendências e histórico do cliente?','Quais pontos da experiência do cliente hoje geram mais ruído, demora ou retrabalho?'] },
+  { id:'s7', badge:'Seção 7', title:'Financeiro e Administrativo', subtitle:'Controles financeiros ligados à jornada do cliente.', questions:['Como funcionam hoje faturamento, cobrança, repasses, reembolsos ou controles administrativos relacionados ao cliente?','Quais etapas financeiras dependem de controles paralelos, planilhas ou validações manuais?','Há integração entre comercial, operação e financeiro? Se sim, como ela acontece na prática?'] },
+  { id:'s8', badge:'Seção 8', title:'Sistemas, Dados e Integrações', subtitle:'Entenda o ecossistema de ferramentas e a confiabilidade das informações.', questions:['Quais são os principais sistemas utilizados hoje pela empresa em marketing, comercial, operação, atendimento e financeiro?','Esses sistemas se conversam entre si ou a equipe precisa transferir informações manualmente?','Quais dados são considerados confiáveis para gestão e quais hoje são frágeis, descentralizados ou difíceis de acessar?','Existe alguma base de conhecimento, repositório de documentos, FAQ, histórico de atendimento ou documentação interna?'] },
+  { id:'s9', badge:'Seção 9', title:'Gargalos e Prontidão para Automação', subtitle:'Identifique onde estão os maiores pontos de atrito e oportunidade.', questions:['Quais são hoje os 3 maiores gargalos operacionais da empresa ao longo da jornada do cliente?','Em quais etapas faria mais sentido automatizar primeiro, considerando ganho de tempo, redução de erro ou escala?','Existe alguma restrição relevante para implantação de automações, como sistema legado, baixa padronização, dependência de pessoas específicas ou limitações de acesso a dados?'] },
+  { id:'s10', badge:'Fechamento', title:'Diagnóstico Comercial', subtitle:'Perguntas finais para orientar o próximo passo da proposta.', questions:['Se fosse preciso priorizar, quais áreas da jornada do cliente mais precisam de eficiência hoje?','Há algum prazo, meta de crescimento ou desafio estratégico que aumente a urgência desse projeto?','Quem são os responsáveis internos que precisariam participar de um diagnóstico mais aprofundado, caso a proposta avance?'] }
 ];
 
-const ADMIN_PASSWORD = "leadrix@admin";
-const STORAGE_KEY = "leadrix_responses";
-
+// ── State ─────────────────────────────────────
 let currentStep = 0;
 let answers = {};
 let metaData = {};
 
-document.addEventListener("DOMContentLoaded", () => {
-  const today = new Date().toISOString().split("T")[0];
-  document.getElementById("meta-date").value = today;
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
   buildDots();
 });
 
 function buildDots() {
-  const container = document.getElementById("steps-dots");
-  container.innerHTML = sections.map((_, i) =>
-    `<div class="step-dot" id="dot-${i}"></div>`
-  ).join("");
+  document.getElementById('steps-dots').innerHTML = sections.map((_,i) =>
+    `<div class="step-dot" id="dot-${i}"></div>`).join('');
 }
 
+// ── Form flow ────────────────────────────────
 function startForm() {
   metaData = {
-    name: document.getElementById("meta-name").value.trim() || "Não informado",
-    company: document.getElementById("meta-company").value.trim() || "Não informado",
-    role: document.getElementById("meta-role").value.trim() || "Não informado",
-    date: document.getElementById("meta-date").value || new Date().toISOString().split("T")[0]
+    name:    document.getElementById('meta-name').value.trim()    || 'Não informado',
+    company: document.getElementById('meta-company').value.trim() || 'Não informado',
+    role:    document.getElementById('meta-role').value.trim()    || 'Não informado',
+    date:    document.getElementById('meta-date').value           || new Date().toISOString().split('T')[0]
   };
-  currentStep = 0;
-  answers = {};
-  showScreen("screen-form");
+  currentStep = 0; answers = {};
+  showScreen('screen-form');
   renderStep();
 }
 
 function renderStep() {
   const s = sections[currentStep];
-  const total = sections.length;
-  const pct = Math.round(((currentStep) / total) * 100);
-
-  document.getElementById("progress-fill").style.width = pct + "%";
-  document.getElementById("progress-section-label").textContent = `Seção ${currentStep + 1} de ${total}`;
-  document.getElementById("progress-pct").textContent = pct + "%";
-
-  sections.forEach((_, i) => {
-    const dot = document.getElementById(`dot-${i}`);
-    dot.className = "step-dot" + (i < currentStep ? " done" : i === currentStep ? " current" : "");
+  const pct = Math.round((currentStep / sections.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-section-label').textContent = `Seção ${currentStep+1} de ${sections.length}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  sections.forEach((_,i) => {
+    const d = document.getElementById(`dot-${i}`);
+    d.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' current' : '');
   });
-
-  const html = `
+  document.getElementById('step-content').innerHTML = `
     <div class="section-badge">${s.badge}</div>
     <div class="section-title">${s.title}</div>
     <div class="section-subtitle">${s.subtitle}</div>
-    ${s.questions.map((q, qi) => `
+    ${s.questions.map((q,qi) => `
       <div class="question-block">
-        <div class="question-label">
-          <span class="q-num">${qi + 1}</span>
-          <span>${q}</span>
-        </div>
-        <textarea
-          id="ans-${s.id}-${qi}"
-          placeholder="Digite sua resposta aqui..."
-          rows="3"
-          onchange="saveAnswer('${s.id}', ${qi}, this.value)"
-          oninput="saveAnswer('${s.id}', ${qi}, this.value)"
-        >${answers[`${s.id}_${qi}`] || ""}</textarea>
-      </div>
-    `).join("")}
-  `;
-  document.getElementById("step-content").innerHTML = html;
-
-  const btnPrev = document.getElementById("btn-prev");
-  const btnNext = document.getElementById("btn-next");
-  btnPrev.disabled = currentStep === 0;
-
-  if (currentStep === total - 1) {
-    btnNext.textContent = "Enviar respostas ✓";
-    btnNext.className = "btn btn-success";
+        <div class="question-label"><span class="q-num">${qi+1}</span><span>${q}</span></div>
+        <textarea id="ans-${s.id}-${qi}" placeholder="Digite sua resposta aqui..." rows="3"
+          oninput="saveAnswer('${s.id}',${qi},this.value)">${answers[`${s.id}_${qi}`]||''}</textarea>
+      </div>`).join('')}`;
+  const btnNext = document.getElementById('btn-next');
+  document.getElementById('btn-prev').disabled = currentStep === 0;
+  if (currentStep === sections.length - 1) {
+    btnNext.textContent = 'Enviar respostas ✓'; btnNext.className = 'btn btn-success';
   } else {
-    btnNext.textContent = "Próximo →";
-    btnNext.className = "btn btn-primary";
+    btnNext.textContent = 'Próximo →'; btnNext.className = 'btn btn-primary';
   }
-
-  document.getElementById("main-card").scrollIntoView({ behavior: "smooth", block: "start" });
+  document.getElementById('main-card').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-function saveAnswer(sectionId, qi, value) {
-  answers[`${sectionId}_${qi}`] = value;
-}
-
-function nextStep() {
-  collectCurrentAnswers();
-  if (currentStep < sections.length - 1) {
-    currentStep++;
-    renderStep();
-  } else {
-    submitForm();
-  }
-}
-
-function prevStep() {
-  collectCurrentAnswers();
-  if (currentStep > 0) {
-    currentStep--;
-    renderStep();
-  }
-}
+function saveAnswer(sid, qi, val) { answers[`${sid}_${qi}`] = val; }
 
 function collectCurrentAnswers() {
   const s = sections[currentStep];
-  s.questions.forEach((_, qi) => {
+  s.questions.forEach((_,qi) => {
     const el = document.getElementById(`ans-${s.id}-${qi}`);
     if (el) answers[`${s.id}_${qi}`] = el.value;
   });
 }
 
-function submitForm() {
+function nextStep() {
   collectCurrentAnswers();
-  const submission = {
-    id: Date.now(),
-    submittedAt: new Date().toISOString(),
-    meta: metaData,
-    answers: { ...answers }
-  };
-  const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  existing.push(submission);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-  showScreen("screen-success");
-  document.getElementById("progress-fill").style.width = "100%";
-  document.getElementById("progress-pct").textContent = "100%";
+  if (currentStep < sections.length - 1) { currentStep++; renderStep(); }
+  else submitForm();
 }
 
-function restartForm() {
-  showScreen("screen-intro");
+function prevStep() {
+  collectCurrentAnswers();
+  if (currentStep > 0) { currentStep--; renderStep(); }
 }
+
+function restartForm() { showScreen('screen-intro'); }
 
 function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
+// ── Submit → Supabase ─────────────────────────
+async function submitForm() {
+  collectCurrentAnswers();
+
+  // Show saving spinner
+  const spinner = document.createElement('div');
+  spinner.className = 'saving-overlay';
+  spinner.innerHTML = '<div class="saving-box"><div class="spin"></div><p>Salvando respostas...</p></div>';
+  document.body.appendChild(spinner);
+
+  const { error } = await db.from('assessments').insert({
+    name:     metaData.name,
+    company:  metaData.company,
+    role:     metaData.role,
+    fill_date: metaData.date,
+    answers:  answers
+  });
+
+  document.body.removeChild(spinner);
+
+  if (error) {
+    alert('Erro ao salvar respostas: ' + error.message + '\n\nVerifique sua conexão e tente novamente.');
+    console.error(error);
+    return;
+  }
+
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-pct').textContent = '100%';
+  showScreen('screen-success');
+}
+
+// ── Admin ─────────────────────────────────────
 function openAdminLogin() {
-  document.getElementById("admin-pwd").value = "";
-  document.getElementById("pwd-error").classList.remove("visible");
-  document.getElementById("overlay-login").classList.add("active");
-  setTimeout(() => document.getElementById("admin-pwd").focus(), 100);
+  document.getElementById('admin-pwd').value = '';
+  document.getElementById('pwd-error').classList.remove('visible');
+  document.getElementById('overlay-login').classList.add('active');
+  setTimeout(() => document.getElementById('admin-pwd').focus(), 100);
 }
 
-function closeOverlay(id) {
-  document.getElementById(id).classList.remove("active");
-}
+function closeOverlay(id) { document.getElementById(id).classList.remove('active'); }
 
 function checkPassword() {
-  const pwd = document.getElementById("admin-pwd").value;
-  if (pwd === ADMIN_PASSWORD) {
-    closeOverlay("overlay-login");
+  if (document.getElementById('admin-pwd').value === ADMIN_PASSWORD) {
+    closeOverlay('overlay-login');
     openAdminPanel();
   } else {
-    document.getElementById("pwd-error").classList.add("visible");
-    document.getElementById("admin-pwd").value = "";
-    document.getElementById("admin-pwd").focus();
+    document.getElementById('pwd-error').classList.add('visible');
+    document.getElementById('admin-pwd').value = '';
+    document.getElementById('admin-pwd').focus();
   }
 }
 
 function openAdminPanel() {
-  document.getElementById("main-card").style.display = "none";
-  document.getElementById("admin-panel").classList.add("active");
+  document.getElementById('main-card').style.display = 'none';
+  document.getElementById('admin-panel').classList.add('active');
   renderAdminPanel();
 }
 
 function exitAdmin() {
-  document.getElementById("main-card").style.display = "";
-  document.getElementById("admin-panel").classList.remove("active");
+  document.getElementById('main-card').style.display = '';
+  document.getElementById('admin-panel').classList.remove('active');
 }
 
-function renderAdminPanel() {
-  const responses = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  const statsEl = document.getElementById("admin-stats");
-  const companies = [...new Set(responses.map(r => r.meta.company))];
-  statsEl.innerHTML = `
-    <div class="stat-card">
-      <div class="stat-num">${responses.length}</div>
-      <div class="stat-label">Respostas recebidas</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">${companies.length}</div>
-      <div class="stat-label">Empresas únicas</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">${responses.length > 0 ? formatDate(responses[responses.length - 1].submittedAt) : "—"}</div>
-      <div class="stat-label">Última resposta</div>
-    </div>
-  `;
+// ── Admin Panel → fetch from Supabase ─────────
+async function renderAdminPanel() {
+  document.getElementById('admin-stats').innerHTML = '<div class="loading-msg">Carregando...</div>';
+  document.getElementById('responses-list').innerHTML = '';
 
-  const listEl = document.getElementById("responses-list");
-  if (responses.length === 0) {
-    listEl.innerHTML = `<div class="no-responses"><span class="no-resp-icon">📭</span><p>Nenhuma resposta recebida ainda.</p></div>`;
+  const { data, error } = await db
+    .from('assessments')
+    .select('*')
+    .order('submitted_at', { ascending: false });
+
+  if (error) {
+    document.getElementById('responses-list').innerHTML =
+      `<div class="no-responses"><span class="no-resp-icon">⚠️</span><p>Erro ao carregar: ${error.message}</p></div>`;
     return;
   }
 
-  listEl.innerHTML = responses.slice().reverse().map(r => `
+  adminResponses = data || [];
+  const companies = [...new Set(adminResponses.map(r => r.company))];
+
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${adminResponses.length}</div><div class="stat-label">Respostas recebidas</div></div>
+    <div class="stat-card"><div class="stat-num">${companies.length}</div><div class="stat-label">Empresas únicas</div></div>
+    <div class="stat-card"><div class="stat-num">${adminResponses.length > 0 ? formatDate(adminResponses[0].submitted_at) : '—'}</div><div class="stat-label">Última resposta</div></div>`;
+
+  if (adminResponses.length === 0) {
+    document.getElementById('responses-list').innerHTML =
+      '<div class="no-responses"><span class="no-resp-icon">📭</span><p>Nenhuma resposta recebida ainda.</p></div>';
+    return;
+  }
+
+  document.getElementById('responses-list').innerHTML = adminResponses.map(r => `
     <div class="response-card">
       <div class="response-card-header" onclick="toggleResponse('r${r.id}')">
         <div class="resp-meta">
-          <h4>${r.meta.name} — ${r.meta.company}</h4>
-          <span>${r.meta.role} · Enviado em ${formatDate(r.submittedAt)}</span>
+          <h4>${r.name} — ${r.company}</h4>
+          <span>${r.role} · Enviado em ${formatDate(r.submitted_at)}</span>
         </div>
         <span class="chevron" id="chev-r${r.id}">▼</span>
       </div>
@@ -881,72 +481,54 @@ function renderAdminPanel() {
         ${sections.map(s => `
           <div class="resp-section">
             <div class="resp-section-title">${s.badge} — ${s.title}</div>
-            ${s.questions.map((q, qi) => {
-              const ans = r.answers[`${s.id}_${qi}`] || "";
-              return `
-                <div class="resp-q">
-                  <div class="resp-q-label">${q}</div>
-                  <div class="resp-q-answer ${ans ? "" : "empty"}">${ans || "Não respondido"}</div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        `).join("")}
+            ${s.questions.map((q,qi) => {
+              const ans = (r.answers || {})[`${s.id}_${qi}`] || '';
+              return `<div class="resp-q">
+                <div class="resp-q-label">${q}</div>
+                <div class="resp-q-answer ${ans?'':'empty'}">${ans || 'Não respondido'}</div>
+              </div>`;
+            }).join('')}
+          </div>`).join('')}
       </div>
-    </div>
-  `).join("");
+    </div>`).join('');
 }
 
 function toggleResponse(id) {
-  const body = document.getElementById("body-" + id);
-  const chev = document.getElementById("chev-" + id);
-  body.classList.toggle("open");
-  chev.classList.toggle("open");
+  document.getElementById('body-'+id).classList.toggle('open');
+  document.getElementById('chev-'+id).classList.toggle('open');
 }
 
 function formatDate(iso) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
-function clearAll() {
-  if (confirm("Tem certeza que deseja apagar TODAS as respostas? Esta ação não pode ser desfeita.")) {
-    localStorage.removeItem(STORAGE_KEY);
-    renderAdminPanel();
-  }
+// ── Clear all ─────────────────────────────────
+async function clearAll() {
+  if (!confirm('Tem certeza que deseja apagar TODAS as respostas? Esta ação não pode ser desfeita.')) return;
+  const { error } = await db.from('assessments').delete().neq('id', 0);
+  if (error) { alert('Erro ao apagar: ' + error.message); return; }
+  renderAdminPanel();
 }
 
+// ── Export CSV ────────────────────────────────
 function exportCSV() {
-  const responses = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  if (responses.length === 0) { alert("Nenhuma resposta para exportar."); return; }
-
-  const headers = ["ID", "Data", "Nome", "Empresa", "Cargo"];
-  sections.forEach(s => {
-    s.questions.forEach((q, qi) => {
-      headers.push(`[${s.badge}] ${q}`);
-    });
+  if (!adminResponses.length) { alert('Nenhuma resposta para exportar.'); return; }
+  const headers = ['ID','Data','Nome','Empresa','Cargo'];
+  sections.forEach(s => s.questions.forEach(q => headers.push(`[${s.badge}] ${q}`)));
+  const rows = adminResponses.map(r => {
+    const row = [r.id, formatDate(r.submitted_at), r.name, r.company, r.role];
+    sections.forEach(s => s.questions.forEach((_,qi) => {
+      const ans = ((r.answers||{})[`${s.id}_${qi}`]||'').replace(/"/g,'""').replace(/\n/g,' ');
+      row.push(`"${ans}"`);
+    }));
+    return row.join(',');
   });
-
-  const rows = responses.map(r => {
-    const row = [r.id, formatDate(r.submittedAt), r.meta.name, r.meta.company, r.meta.role];
-    sections.forEach(s => {
-      s.questions.forEach((_, qi) => {
-        const ans = (r.answers[`${s.id}_${qi}`] || "").replace(/"/g, '""').replace(/\n/g, " ");
-        row.push(`"${ans}"`);
-      });
-    });
-    return row.join(",");
-  });
-
-  const csv = [headers.map(h => `"${h}"`).join(","), ...rows].join("\n");
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "leadrix-assessment-respostas.csv";
+  const csv = [headers.map(h=>`"${h}"`).join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = 'leadrix-assessment-respostas.csv';
   a.click();
-  URL.revokeObjectURL(url);
 }
 </script>
 </body>
